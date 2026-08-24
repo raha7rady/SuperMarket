@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using SuperMarket.Domain.Enums
+@using SuperMarket.Web.Areas.Customer.ViewModels.Categories
+
+@model SuperMarket.Web.Areas.Customer.ViewModels.Products.CustomerProductFilterViewModel
+
+<div class="card border-0 shadow-sm rounded-4 product-filter">
+
+    <div class="card-body">
+
+        <div class="d-flex align-items-center mb-4">
+            <i class="bi bi-funnel fs-5 me-2"></i>
+            <h5 class="fw-bold mb-0">فیلتر محصولات</h5>
+        </div>
+
+        <form method="get"
+              asp-area="Customer"
+              asp-controller="Product"
+              asp-action="Index">
+
+            <!-- Search -->
+            <div class="mb-3">
+                <label asp-for="SearchTerm" class="form-label fw-semibold">جستجو</label>
+                <input asp-for="SearchTerm"
+                       class="form-control"
+                       placeholder="نام محصول..." />
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label fw-semibold">دسته‌بندی</label>
+
+                <select asp-for="CategoryId"
+                        class="form-select">
+
+                    <option value="">همه دسته‌بندی‌ها</option>
+
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id"
+                                selected="@(category.Id == Model.CategoryId)">
+                            @category.Title
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+            <!-- Sort -->
+            <div class="mb-3">
+                <label asp-for="SortBy" class="form-label fw-semibold">مرتب‌سازی</label>
+
+                <select asp-for="SortBy" class="form-select">
+
+                    <option value="@ProductSortBy.DisplayOrder">پیش‌فرض</option>
+                    <option value="@ProductSortBy.PriceLowToHigh">ارزان‌ترین</option>
+                    <option value="@ProductSortBy.PriceHighToLow">گران‌ترین</option>
+                    <option value="@ProductSortBy.Newest">جدیدترین</option>
+
+                </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label asp-for="MinPrice" class="form-label fw-semibold">حداقل قیمت</label>
+                    <input asp-for="MinPrice" class="form-control" min="0" />
+                </div>
+
+                <div class="col-6 mb-3">
+                    <label asp-for="MaxPrice" class="form-label fw-semibold">حداکثر قیمت</label>
+                    <input asp-for="MaxPrice" class="form-control" min="0" />
+                </div>
+            </div>
+
+            <!-- Stock -->
+            <div class="form-check mb-4">
+                <input asp-for="OnlyInStock" class="form-check-input" />
+                <label asp-for="OnlyInStock" class="form-check-label">
+                    فقط کالاهای موجود
+                </label>
+            </div>
+
+            <!-- Page Size -->
+            <div class="mb-4">
+                <label asp-for="PageSize" class="form-label fw-semibold">تعداد نمایش</label>
+
+                <select asp-for="PageSize" class="form-select">
+                    <option value="12">12</option>
+                    <option value="24">24</option>
+                    <option value="36">36</option>
+                    <option value="48">48</option>
+                </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+
+                <button type="submit" class="btn btn-dark">
+                    <i class="bi bi-search me-1"></i>
+                    اعمال فیلتر
+                </button>
+
+                <a asp-area="Customer"
+                   asp-controller="Product"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    حذف فیلترها
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>

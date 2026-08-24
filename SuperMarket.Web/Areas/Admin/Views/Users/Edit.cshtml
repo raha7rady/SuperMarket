@@ -1,0 +1,43 @@
+﻿@using SuperMarket.Application.DTOs.Users
+@model SuperMarket.Application.DTOs.Users.UserUpdateDto
+@using SuperMarket.Domain.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+
+@* اینجا یه مشکل داریم که لایه وب مستقیم از اینام لایه دامین استفاده کرده بعدا اصلاحش کن.
+ *@
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "_AdminLayout";
+}
+
+<h1>Edit User</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Role" class="form-label"></label>
+
+        <select asp-for="Role"
+                asp-items="Html.GetEnumSelectList<UserRole>()"
+                class="form-select">
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

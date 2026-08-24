@@ -1,0 +1,21 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Orders
+@model SuperMarket.Web.Areas.Admin.ViewModels.Orders.PaymentStatusViewModel
+
+@switch (Model)
+{
+    case PaymentStatusViewModel.Paid:
+        <span class="badge bg-success">Paid</span>
+        break;
+    case PaymentStatusViewModel.Pending:
+        <span class="badge bg-warning text-dark">Pending</span>
+        break;
+    case PaymentStatusViewModel.Failed:
+        <span class="badge bg-danger">Failed</span>
+        break;
+    case PaymentStatusViewModel.Refunded:
+        <span class="badge bg-info text-dark">Refunded</span>
+        break;
+    default:
+        <span class="badge bg-secondary">Unknown</span>
+        break;
+}

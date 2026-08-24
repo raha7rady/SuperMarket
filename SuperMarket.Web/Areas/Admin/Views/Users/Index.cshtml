@@ -1,0 +1,232 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Users
+
+@model SuperMarket.Web.Areas.Admin.ViewModels.Users.UserListViewModel
+@{
+    ViewData["Title"] = "Users";
+    Layout = "_AdminLayout";
+}
+
+<h1>Users</h1>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <input type="text"
+               name="FullName"
+               value="@Model.Filter.FullName"
+               placeholder="Full Name"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-3">
+        <input type="email"
+               name="Email"
+               value="@Model.Filter.Email"
+               placeholder="Email"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <select name="Role" class="form-select">
+            <option value="">All Roles</option>
+
+            @if (Model.Filter.Role == "Admin")
+            {
+                <option value="Admin" selected>Admin</option>
+            }
+            else
+            {
+                <option value="Admin">Admin</option>
+            }
+
+            @if (Model.Filter.Role == "Customer")
+            {
+                <option value="Customer" selected>Customer</option>
+            }
+            else
+            {
+                <option value="Customer">Customer</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select name="IsDeleted" class="form-select">
+            <option value="">All</option>
+
+            @if (Model.Filter.IsDeleted == true)
+            {
+                <option value="true" selected>Deleted</option>
+            }
+            else
+            {
+                <option value="true">Deleted</option>
+            }
+
+            @if (Model.Filter.IsDeleted == false)
+            {
+                <option value="false" selected>Active</option>
+            }
+            else
+            {
+                <option value="false">Active</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            Filter
+        </button>
+    </div>
+</form>
+
+<a href="@Url.Action("Create")" class="btn btn-success mb-3">
+    Create New User
+</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Orders</th>
+            <th>Cart Items</th>
+            <th>Created At</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var user in Model.Items)
+        {
+            <tr class="@(user.IsDeleted ? "table-danger" : "")">
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>@user.OrderCount</td>
+                <td>@user.CartItemCount</td>
+                <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>@(user.IsDeleted ? "Deleted" : "Active")</td>
+
+                <td>
+                    <a href="@Url.Action("Details", new { id = user.Id })"
+                       class="btn btn-sm btn-info">
+                        Details
+                    </a>
+
+                    <a href="@Url.Action("Edit", new { id = user.Id })"
+                       class="btn btn-sm btn-warning">
+                        Edit
+                    </a>
+
+                    @if (user.CanDelete)
+                    {
+                        <form method="post"
+                              asp-action="Delete"
+                              class="d-inline">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@user.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure?');">
+                                Delete
+                            </button>
+                        </form>
+                    }
+
+                    @if (user.CanRestore)
+                    {
+                        <form method="post"
+                              asp-action="Restore"
+                              class="d-inline">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@user.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Restore
+                            </button>
+                        </form>
+                    }
+
+                    @if (user.CanPromoteToAdmin)
+                    {
+                        <form method="post"
+                              asp-action="PromoteToAdmin"
+                              class="d-inline">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@user.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-primary">
+                                Promote
+                            </button>
+                        </form>
+                    }
+
+                    @if (user.CanDemoteToCustomer)
+                    {
+                        <form method="post"
+                              asp-action="DemoteToCustomer"
+                              class="d-inline">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@user.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-secondary">
+                                Demote
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+
+        @if (Model.HasPreviousPage)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                   href="@Url.Action("Index", new { PageNumber = Model.Filter.PageNumber - 1 })">
+                    Previous
+                </a>
+            </li>
+        }
+
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.Filter.PageNumber ? "active" : "")">
+                <a class="page-link"
+                   href="@Url.Action("Index", new { PageNumber = i })">
+                    @i
+                </a>
+            </li>
+        }
+
+        @if (Model.HasNextPage)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                   href="@Url.Action("Index", new { PageNumber = Model.Filter.PageNumber + 1 })">
+                    Next
+                </a>
+            </li>
+        }
+
+    </ul>
+</nav>

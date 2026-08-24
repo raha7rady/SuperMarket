@@ -1,0 +1,52 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Users
+
+@model SuperMarket.Web.Areas.Admin.ViewModels.Users.UserDetailsViewModel
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_AdminLayout";
+}
+
+<h1>User Details</h1>
+
+<table class="table table-bordered">
+    <tr><th>Full Name</th><td>@Model.FullName</td></tr>
+    <tr><th>Email</th><td>@Model.Email</td></tr>
+    <tr><th>Role</th><td>@Model.Role</td></tr>
+    <tr><th>Orders</th><td>@Model.OrderCount</td></tr>
+    <tr><th>Cart Items</th><td>@Model.CartItemCount</td></tr>
+    <tr><th>Created At</th><td>@Model.CreatedAt:yyyy-MM-dd</td></tr>
+    <tr><th>Updated At</th><td>@Model.UpdatedAt?.ToString("yyyy-MM-dd") ?? "-" </td></tr>
+    <tr><th>Status</th><td>@(Model.IsDeleted ? "Deleted" : "Active")</td></tr>
+</table>
+
+<a href="@Url.Action("Edit", new { id=Model.Id })" class="btn btn-warning">Edit</a>
+<a href="@Url.Action("ChangePassword", new { id=Model.Id })" class="btn btn-info">Change Password</a>
+
+@if (Model.CanDelete)
+{
+    <form method="post" asp-action="Delete" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+    </form>
+}
+@if (Model.CanRestore)
+{
+    <form method="post" asp-action="Restore" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-success">Restore</button>
+    </form>
+}
+@if (Model.CanPromoteToAdmin)
+{
+    <form method="post" asp-action="PromoteToAdmin" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-primary">Promote</button>
+    </form>
+}
+@if (Model.CanDemoteToCustomer)
+{
+    <form method="post" asp-action="DemoteToCustomer" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-secondary">Demote</button>
+    </form>
+}

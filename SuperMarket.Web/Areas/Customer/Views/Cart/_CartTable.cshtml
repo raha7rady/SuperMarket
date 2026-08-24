@@ -1,0 +1,47 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Cart.CartViewModel
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white">
+        <strong>اقلام سبد خرید</strong>
+    </div>
+
+    <div class="card-body p-0">
+
+        @if (Model?.Items == null || !Model.Items.Any())
+        {
+            <div class="p-4 text-center text-muted">
+                هیچ محصولی در سبد خرید وجود ندارد.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>محصول</th>
+                            <th>قیمت</th>
+                            <th>تعداد</th>
+                            <th>جمع</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <partial name="_CartItemRow" model="item" />
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+</div>

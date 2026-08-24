@@ -1,0 +1,71 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Cart.CartViewModel
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white">
+        <strong>خلاصه سفارش</strong>
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>تعداد کالاها</span>
+            <strong>@Model.TotalItems</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>مبلغ کل</span>
+            <strong>
+                @Model.TotalAmount.ToString("N0") تومان
+            </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-grid gap-2">
+
+            <form asp-area="Customer"
+                  asp-controller="Checkout"
+                  asp-action="Index"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-success w-100">
+
+                    ثبت سفارش
+
+                </button>
+
+            </form>
+
+            <a asp-area="Customer"
+               asp-controller="Product"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                ادامه خرید
+            </a>
+
+            <form asp-area="Customer"
+                  asp-controller="Cart"
+                  asp-action="Clear"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-outline-danger w-100"
+                        onclick="return confirm('آیا از خالی کردن سبد مطمئن هستید؟');">
+
+                    خالی کردن سبد
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,59 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Cart.CartIndexViewModel
+
+@{
+    ViewData["Title"] = "سبد خرید";
+}
+
+@section Styles
+{
+    <style>
+        .cart-image {
+            width: 80px;
+            height: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+    </style>
+}
+
+<div class="container py-4">
+
+    <h2 class="fw-bold mb-4">سبد خرید</h2>
+
+    @if (Model?.Cart?.HasItems != true)
+    {
+        <div class="cart-empty">
+            <h5 class="mb-3">سبد خرید شما خالی است</h5>
+
+            <a asp-area="Customer"
+               asp-controller="Product"
+               asp-action="Index"
+               class="btn btn-primary">
+                مشاهده محصولات
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+                <partial name="_CartTable" model="Model.Cart" />
+            </div>
+
+            <div class="col-lg-4">
+                <partial name="_CartSummary" model="Model.Cart" />
+            </div>
+
+        </div>
+    }
+
+</div>

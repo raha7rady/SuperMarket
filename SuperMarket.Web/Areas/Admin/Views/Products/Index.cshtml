@@ -1,0 +1,155 @@
+﻿@model SuperMarket.Web.Areas.Admin.ViewModels.Products.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<partial name="_Alerts" />
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Products</h2>
+    <a asp-area="Admin" asp-action="Create" class="btn btn-primary">
+        + Create Product
+    </a>
+</div>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Search title..." />
+    </div>
+
+    <div class="col-md-2">
+        <select asp-for="Filter.IsActive" class="form-select">
+            <option value="">All Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <select asp-for="Filter.PageSize" class="form-select">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-secondary w-100">
+            Filter
+        </button>
+    </div>
+</form>
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">No products found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td style="width:70px">
+                            <img src="@item.Id"
+                                 alt="img"
+                                 class="img-thumbnail"
+                                 style="height:50px;width:50px;object-fit:cover;" />
+                        </td>
+                        <td>@item.Title</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>
+                            @if (item.IsInStock)
+                            {
+                                <span class="badge bg-success">@item.Stock</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">0</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @(item.IsActive ? "bg-success" : "bg-secondary")">
+                                @(item.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td class="text-end">
+                            <a asp-area="Admin"
+                               asp-action="Details"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-info">
+                                View
+                            </a>
+
+                            <a asp-area="Admin"
+                               asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+
+                            <form asp-area="Admin"
+                                  asp-action="Delete"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this product?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-route-PageNumber="@(Model.Filter.PageNumber - 1)"
+                       asp-route-PageSize="@Model.Filter.PageSize">
+                        Previous
+                    </a>
+                </li>
+            }
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Page @Model.Filter.PageNumber of @Model.TotalPages
+                </span>
+            </li>
+
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-route-PageNumber="@(Model.Filter.PageNumber + 1)"
+                       asp-route-PageSize="@Model.Filter.PageSize">
+                        Next
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

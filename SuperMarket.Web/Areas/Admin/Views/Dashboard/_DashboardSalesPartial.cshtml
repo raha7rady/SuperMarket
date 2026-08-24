@@ -1,0 +1,38 @@
+﻿@model SuperMarket.Web.Areas.Admin.ViewModels.Dashboard.DashboardSalesViewModel
+
+<div class="col-md-12 mb-4">
+    <div class="row">
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card border-info">
+                <div class="card-body">
+                    <h6>Today's Sales</h6>
+                    <p class="h5">@Model.TodaySalesFormatted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6>Monthly Sales</h6>
+                    <p class="h5">@Model.MonthlySalesFormatted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h6>Yearly Sales</h6>
+                    <p class="h5">@Model.YearlySalesFormatted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6>Average Order Value</h6>
+                    <p class="h5">@Model.AverageOrderValueFormatted</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Products.CustomerProductListViewModel
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <h1>محصولات فروشگاه</h1>
+            <p class="text-muted">جدیدترین محصولات با بهترین قیمت</p>
+        </div>
+
+        <div>
+            <span class="badge bg-dark">
+                @Model.Pagination.TotalCount محصول
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <aside class="col-12 col-lg-3">
+
+            @await Component.InvokeAsync("ProductFilter", Model.Filters)
+
+        </aside>
+
+        <section class="col-12 col-lg-9">
+
+            @if (Model.IsEmpty)
+            {
+                <div class="text-center py-5">
+                    <h4>محصولی یافت نشد</h4>
+                    <p class="text-muted">فیلترها را تغییر دهید</p>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col">
+                            @await Component.InvokeAsync("ProductCard", product)
+                        </div>
+                    }
+
+                </div>
+
+                <div class="mt-5">
+
+                    @await Component.InvokeAsync(
+                             "ProductPagination",
+                             Model.Pagination)
+
+                </div>
+            }
+
+        </section>
+
+    </div>
+</div>

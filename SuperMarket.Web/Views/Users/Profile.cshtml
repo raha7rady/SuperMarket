@@ -1,0 +1,30 @@
+﻿@* @model SuperMarket.Application.DTOs.User.UserProfileDto
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container mt-5">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h4>My Profile</h4>
+        </div>
+        <div class="card-body p-4">
+            <p><strong>Full Name:</strong> @Model.FullName</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Role:</strong> @Model.Role</p>
+
+            <a asp-action="ChangePassword" class="btn btn-warning mt-3">Change Password</a>
+        </div>
+    </div>
+</div>
+ *@

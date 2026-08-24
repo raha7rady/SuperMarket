@@ -1,0 +1,82 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Products.CustomerProductListItemViewModel
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 product-card">
+
+    <!-- IMAGE -->
+    <div class="position-relative product-image-wrapper">
+
+        <img src="@(string.IsNullOrWhiteSpace(Model.ImageUrl)
+                    ? "/images/no-image.png"
+                    : Model.ImageUrl)"
+             class="product-image"
+             alt="@Model.Title"
+             loading="lazy" />
+
+        @if (Model.HasValidDiscount && Model.DiscountPercent > 0)
+        {
+            <span class="badge badge-discount">
+                @Model.DiscountPercent% تخفیف
+            </span>
+        }
+
+        @if (!Model.IsInStock)
+        {
+            <span class="badge badge-out">
+                ناموجود
+            </span>
+        }
+
+    </div>
+
+    <!-- BODY -->
+    <div class="card-body d-flex flex-column">
+
+        <!-- Title -->
+        <h6 class="product-title mb-2">
+            @Model.Title
+        </h6>
+
+        <!-- Category -->
+        <small class="product-category">
+            @Model.CategoryName
+        </small>
+
+        <!-- Price Section -->
+        <div class="mt-auto pt-3">
+
+            @if (Model.HasValidDiscount)
+            {
+                <div class="mb-2">
+
+                    <span class="price-new">
+                        @Model.PriceText تومان
+                    </span>
+
+                    <del class="price-old d-block">
+                        @Model.OldPriceText تومان
+                    </del>
+
+                </div>
+            }
+            else
+            {
+                <div class="price-new mb-2">
+                    @Model.PriceText تومان
+                </div>
+            }
+
+            <a asp-area="Customer"
+               asp-controller="Product"
+               asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="btn btn-dark w-100 rounded-3">
+
+                مشاهده محصول
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

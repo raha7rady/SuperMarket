@@ -1,0 +1,34 @@
+﻿@model List<SuperMarket.Web.Areas.Admin.ViewModels.Dashboard.DashboardRecentOrderViewModel>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Recent Orders
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Order Number</th>
+                    <th>User</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@(string.IsNullOrWhiteSpace(order.OrderNumber) ? order.Id.ToString().Substring(0, 8) : order.OrderNumber)</td>
+                        <td>@order.UserFullName</td>
+                        <td>@order.TotalAmountFormatted</td>
+                        <td>@order.OrderStatus</td>
+                        <td>@order.PaymentStatus</td>
+                        <td>@order.CreatedAtFormatted</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

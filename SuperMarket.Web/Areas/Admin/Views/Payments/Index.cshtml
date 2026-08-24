@@ -1,0 +1,65 @@
+@model SuperMarket.Application.Common.PagedResult<SuperMarket.Application.DTOs.Payments.PaymentAdminDto>
+
+@{
+    ViewData["Title"] = "Payments";
+}
+
+<h2 class="mb-4">Payments</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.IsSuccess || Model.Value.Count == 0)
+{
+    <p class="text-muted">No payments found.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Order</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model.Value)
+            {
+                <tr>
+                    <td>@payment.OrderId.ToString().Substring(0, 8)</td>
+                    <td>@payment.Amount.ToString("N0")</td>
+                    <td>@payment.PaymentMethod</td>
+                    <td><span class="badge bg-secondary">@payment.Status</span></td>
+                    <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@p">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}

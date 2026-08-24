@@ -1,0 +1,22 @@
+﻿@model SuperMarket.Web.Areas.Admin.ViewModels.Products.ProductEditViewModel
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<partial name="_Alerts" />
+
+<h2>Edit Product</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+
+    <partial name="_ProductForm" model="Model" />
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

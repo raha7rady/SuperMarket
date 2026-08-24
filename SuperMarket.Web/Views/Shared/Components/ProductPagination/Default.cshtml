@@ -1,0 +1,101 @@
+﻿@model SuperMarket.Web.Areas.Customer.ViewModels.Products.CustomerProductPaginationViewModel
+
+@if (Model == null || Model.TotalPages <= 1)
+{
+    return;
+}
+
+@{
+    var routeValues = new Dictionary<string, string>
+            {
+                ["searchTerm"] = Context.Request.Query["searchTerm"].ToString(),
+                ["categoryId"] = Context.Request.Query["categoryId"].ToString(),
+                ["sortBy"] = Context.Request.Query["sortBy"].ToString(),
+                ["minPrice"] = Context.Request.Query["minPrice"].ToString(),
+                ["maxPrice"] = Context.Request.Query["maxPrice"].ToString(),
+                ["onlyInStock"] = Context.Request.Query["onlyInStock"].ToString(),
+                ["pageSize"] = Model.PageSize.ToString()
+            };
+}
+
+<nav class="mt-4" aria-label="Product pagination">
+
+    <ul class="pagination justify-content-center">
+
+        <!-- Previous -->
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link"
+               asp-action="Index"
+               asp-all-route-data="routeValues"
+               asp-route-pageNumber="@(Model.PreviousPage)">
+                قبلی
+            </a>
+        </li>
+
+        <!-- First page shortcut -->
+        @if (Model.StartPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-all-route-data="routeValues"
+                   asp-route-pageNumber="1">
+                    1
+                </a>
+            </li>
+
+            @if (Model.StartPage > 2)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            }
+        }
+
+        <!-- Pages -->
+        @for (int i = Model.StartPage; i <= Model.EndPage; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-all-route-data="routeValues"
+                   asp-route-pageNumber="@i"
+                   aria-current="@(i == Model.PageNumber ? "page" : null)">
+                    @i
+                </a>
+            </li>
+        }
+
+        <!-- Last page shortcut -->
+        @if (Model.EndPage < Model.TotalPages)
+        {
+            @if (Model.EndPage < Model.TotalPages - 1)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            }
+
+            <li class="page-item">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-all-route-data="routeValues"
+                   asp-route-pageNumber="@Model.TotalPages">
+                    @Model.TotalPages
+                </a>
+            </li>
+        }
+
+        <!-- Next -->
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link"
+               asp-action="Index"
+               asp-all-route-data="routeValues"
+               asp-route-pageNumber="@(Model.NextPage)">
+                بعدی
+            </a>
+        </li>
+
+    </ul>
+
+</nav>

@@ -1,0 +1,71 @@
+﻿@model IReadOnlyList<SuperMarket.Web.Components.AdminMenuItem>
+
+<nav id="admin-sidebar"
+     class="admin-sidebar bg-dark text-white vh-100 p-3 d-flex flex-column">
+
+    <!-- HEADER -->
+    <div class="sidebar-header text-center mb-4">
+
+        <h3 class="fw-bold text-white mb-1">
+            <i class="bi bi-shop me-2"></i>
+            SuperMarket
+        </h3>
+
+        <small class="text-muted">Admin Panel</small>
+
+    </div>
+
+    <!-- MENU -->
+    <ul class="nav flex-column gap-2">
+
+        @if (Model == null || !Model.Any())
+        {
+            <li class="text-muted small px-2">
+                منویی وجود ندارد
+            </li>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <li class="nav-item">
+
+                    @if (item.IsLogout)
+                    {
+                        <form asp-area=""
+                              asp-controller="Account"
+                              asp-action="Logout"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="nav-link btn btn-link text-start w-100 sidebar-link logout">
+
+                                <i class="bi @item.Icon me-2"></i>
+                                @item.Title
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="nav-link sidebar-link @(item.IsActive ? "active" : "")"
+                           asp-area="Admin"
+                           asp-controller="@item.Controller"
+                           asp-action="@item.Action">
+
+                            <i class="bi @item.Icon me-2"></i>
+                            @item.Title
+
+                        </a>
+                    }
+
+                </li>
+            }
+        }
+
+    </ul>
+
+</nav>

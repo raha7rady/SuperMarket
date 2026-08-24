@@ -1,0 +1,97 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Orders
+
+@model SuperMarket.Web.Areas.Admin.ViewModels.Orders.OrderDetailsViewModel
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2 class="mb-4">Order Details</h2>
+<a asp-action="Index" class="btn btn-secondary mb-3">Back</a>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Order Id:</strong> @Model.Id</p>
+        <p><strong>User:</strong> @Model.UserName</p>
+        <p><strong>Status:</strong> @await Html.PartialAsync("_OrderStatusBadge", Model.OrderStatus)</p>
+        <p><strong>Payment:</strong> @await Html.PartialAsync("_OrderPaymentBadge", Model.PaymentStatus)</p>
+        <p><strong>Total:</strong> @Model.TotalPrice.ToString("N0")</p>
+        <p><strong>Created:</strong> @Model.CreatedAt</p>
+        @if (Model.UpdatedAt.HasValue)
+        {
+            <p><strong>Updated:</strong> @Model.UpdatedAt.Value</p>
+        }
+    </div>
+</div>
+
+<h4>Items</h4>
+<div class="card mb-4">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>SubTotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.ProductTitle</td>
+                        <td>@item.Price.ToString("N0")</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.SubTotal.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h4>Actions</h4>
+<div class="d-flex flex-wrap gap-2">
+    @if (Model.CanMarkAsPaid)
+    {
+        <form asp-action="MarkAsPaid" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-success">Mark as Paid</button>
+        </form>
+    }
+    @if (Model.CanMarkAsShipped)
+    {
+        <form asp-action="MarkAsShipped" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-info">Mark as Shipped</button>
+        </form>
+    }
+    @if (Model.CanMarkAsDelivered)
+    {
+        <form asp-action="MarkAsDelivered" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-primary">Mark as Delivered</button>
+        </form>
+    }
+    @if (Model.CanCancel)
+    {
+        <form asp-action="Cancel" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="btn btn-danger">Cancel</button>
+        </form>
+    }
+</div>

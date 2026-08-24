@@ -1,0 +1,35 @@
+﻿@model IReadOnlyList<SuperMarket.Web.Areas.Customer.ViewModels.Categories.CustomerCategoryItemViewModel>
+
+<nav class="category-menu" aria-label="Category Filter">
+
+    <!-- All products -->
+    <a asp-area="Customer"
+       asp-controller="Product"
+       asp-action="Index"
+       class="category-link @(Model.All(x => !x.IsSelected) ? "active" : "")">
+
+        همه محصولات
+    </a>
+
+    @if (Model == null || !Model.Any())
+    {
+        <span class="text-muted small px-2">
+            دسته‌بندی‌ای یافت نشد
+        </span>
+    }
+    else
+    {
+        foreach (var category in Model)
+        {
+            <a asp-area="Customer"
+               asp-controller="Product"
+               asp-action="Index"
+               asp-route-categoryId="@category.Id"
+               class="category-link @(category.IsSelected ? "active" : "")">
+
+                @category.Title
+            </a>
+        }
+    }
+
+</nav>

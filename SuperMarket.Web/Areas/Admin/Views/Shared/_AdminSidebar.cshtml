@@ -1,0 +1,71 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+
+
+<nav id="admin-sidebar" class="bg-dark text-white vh-100 p-3 sidebar">
+    <div class="sidebar-header mb-4">
+        <h3>Admin Panel</h3>
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white @(GetActiveClass("Dashboard", "Index"))"
+               asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white @(GetActiveClass("Products", "Index"))"
+               asp-area="Admin" asp-controller="Products" asp-action="Index">
+                <i class="bi bi-box-seam me-2"></i> Products
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white @(GetActiveClass("Categories", "Index"))"
+               asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                <i class="bi bi-tags me-2"></i> Categories
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white @(GetActiveClass("Orders", "Index"))"
+               asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                <i class="bi bi-receipt me-2"></i> Orders
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a class="nav-link text-white @(GetActiveClass("Users", "Index"))"
+               asp-area="Admin" asp-controller="Users" asp-action="Index">
+                <i class="bi bi-people me-2"></i> Users
+            </a>
+        </li>
+    </ul>
+</nav>
+
+@functions {
+    /// <summary>
+    /// بررسی می‌کند آیا کنترلر و اکشن فعلی با مقادیر ورودی مطابقت دارد یا خیر
+    /// </summary>
+    private string GetActiveClass(string controller, string action)
+    {
+        // دسترسی مستقیم به ViewContext برای جلوگیری از مشکلات Scope
+        var routeData = ViewContext?.RouteData;
+
+        if (routeData == null)
+        {
+            return "";
+        }
+
+        var currentController = routeData.Values["controller"]?.ToString();
+        var currentAction = routeData.Values["action"]?.ToString();
+
+        // اگر داده‌ای وجود نداشت، فعال نیست
+        if (string.IsNullOrEmpty(currentController) || string.IsNullOrEmpty(currentAction))
+        {
+            return "";
+        }
+
+        return string.Equals(controller, currentController, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(action, currentAction, StringComparison.OrdinalIgnoreCase)
+           ? "active"
+           : "";
+    }
+}

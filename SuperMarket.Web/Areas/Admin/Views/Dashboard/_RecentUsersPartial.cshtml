@@ -1,0 +1,28 @@
+﻿@model List<SuperMarket.Web.Areas.Admin.ViewModels.Dashboard.DashboardRecentUserViewModel>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Recent Users
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.CreatedAtFormatted</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

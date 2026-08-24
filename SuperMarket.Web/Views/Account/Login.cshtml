@@ -1,0 +1,130 @@
+﻿@model SuperMarket.Web.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "ورود به حساب کاربری";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+}
+
+<div class="auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-10">
+
+                <div class="card auth-card">
+                    <div class="auth-card-body">
+
+                        <!-- Header -->
+                        <div class="auth-header">
+                            <div class="auth-icon-badge">
+                                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                            </div>
+                            <h1>ورود به حساب</h1>
+                            <p>برای ادامه لطفاً وارد حساب کاربری خود شوید</p>
+                        </div>
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="All"
+                             class="alert alert-danger @(ViewData.ModelState.IsValid ? "d-none" : "")"
+                             role="alert">
+                        </div>
+
+                        <!-- Form -->
+                        <form asp-action="Login" method="post" novalidate>
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">ایمیل</label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope" aria-hidden="true"></i>
+                                    </span>
+
+                                    <input asp-for="Email"
+                                           class="form-control"
+                                           placeholder="name@example.com"
+                                           autocomplete="email" />
+                                </div>
+
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">رمز عبور</label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-lock" aria-hidden="true"></i>
+                                    </span>
+
+                                    <input asp-for="Password"
+                                           id="loginPassword"
+                                           type="password"
+                                           class="form-control"
+                                           placeholder="رمز عبور خود را وارد کنید"
+                                           autocomplete="current-password" />
+
+                                    <button type="button"
+                                            class="btn password-toggle-btn"
+                                            data-toggle-password="loginPassword"
+                                            aria-pressed="false"
+                                            aria-label="نمایش رمز عبور">
+                                        <i class="bi bi-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Remember Me + Forgot -->
+                            <div class="auth-links-row mb-4">
+
+                                <div class="form-check">
+                                    <input asp-for="RememberMe" class="form-check-input" id="rememberMe" />
+                                    <label class="form-check-label" for="rememberMe">
+                                        مرا به خاطر بسپار
+                                    </label>
+                                </div>
+
+                                <a asp-action="ForgotPassword" class="small fw-semibold">
+                                    فراموشی رمز عبور؟
+                                </a>
+
+                            </div>
+
+                            <!-- Submit -->
+                            <button type="submit" class="btn btn-primary w-100 btn-submit">
+                                ورود
+                            </button>
+
+                        </form>
+
+                        <!-- Register -->
+                        <div class="auth-footer">
+                            حساب کاربری ندارید؟
+                            <a asp-action="Register">ثبت‌نام کنید</a>
+                        </div>
+
+                        <div class="auth-footer">
+                            <a asp-action="ResendConfirmationEmail">ارسال مجدد ایمیل تأیید</a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/account.js" asp-append-version="true"></script>
+}

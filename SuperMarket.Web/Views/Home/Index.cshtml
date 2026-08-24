@@ -1,0 +1,135 @@
+﻿@model SuperMarket.Web.ViewModels.Home.HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "صفحه اصلی";
+}
+
+<section class="bg-success text-white rounded-4 p-5 mb-5">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-6">
+
+            <h1 class="display-5 fw-bold mb-3">
+                @Model.HeroTitle
+            </h1>
+
+            <p class="lead mb-4">
+                @Model.HeroDescription
+            </p>
+
+            <a asp-area="Customer"
+               asp-controller="Product"
+               asp-action="Index"
+               class="btn btn-light btn-lg">
+
+                مشاهده محصولات
+
+            </a>
+
+        </div>
+
+        <div class="col-lg-6 text-center">
+
+            <i class="bi bi-basket2-fill"
+               style="font-size:10rem">
+            </i>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="mb-5">
+
+    <h3 class="fw-bold mb-4">
+        دسته بندی ها
+    </h3>
+
+    <div class="row g-3">
+
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-md-3">
+
+                <div class="card border-0 shadow-sm text-center h-100">
+
+                    <div class="card-body">
+
+                        <i class="bi bi-grid fs-1 text-success"></i>
+
+                        <h5 class="mt-3">
+                            @category.Title
+                        </h5>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</section>
+
+<section>
+
+    <h3 class="fw-bold mb-4">
+        محصولات ویژه
+    </h3>
+
+    <div class="row g-4">
+
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <div class="col-md-4">
+
+                <div class="card h-100 shadow-sm">
+
+                    <img src="@product.ImageUrl"
+                         class="card-img-top"
+                         alt="@product.Title">
+
+                    <div class="card-body">
+
+                        <div class="small text-muted mb-2">
+                            @product.CategoryName
+                        </div>
+
+                        <h5>
+                            @product.Title
+                        </h5>
+
+                        @if (product.HasValidDiscount)
+                        {
+                            <div>
+
+                                <span class="fw-bold text-success">
+                                    @product.PriceText تومان
+                                </span>
+
+                                <span class="text-muted text-decoration-line-through me-2">
+                                    @product.OldPriceText
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="fw-bold text-success">
+                                @product.PriceText تومان
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</section>

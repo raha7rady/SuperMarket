@@ -1,0 +1,126 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    // بهینه‌سازی: به جای استفاده از UserManager (که دیتابیس را درگیر می‌کند)،
+    // از ClaimsPrincipal استفاده می‌کنیم که سریع‌تر و سبک‌تر است.
+    var user = Context?.User;
+    var isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
+
+    // استخراج نام کاربری از Claims یا Identity (بدون نیاز به دیتابیس)
+    var displayName = isAuthenticated
+        ? (user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+           ?? user.FindFirst("preferred_username")?.Value
+           ?? user.Identity.Name
+           ?? "کاربر مهمان")
+        : "کاربر مهمان";
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="پنل مدیریت حرفه‌ای سوپرمارکت">
+    <title>@ViewData["Title"] - پنل مدیریت SuperMarket</title>
+
+    <!-- فونت وزیرمتن (بارگذاری بهینه) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-..." crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-light" style="font-family: 'Vazirmatn', sans-serif;">
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar via ViewComponent -->
+        <!-- توجه: ViewComponent خودش ایمن و بهینه است -->
+        @await Component.InvokeAsync("AdminMenuViewComponent")
+
+        <!-- Page Content Wrapper -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm px-3 py-2 sticky-top">
+                <div class="container-fluid">
+                    <!-- Toggle Button for Mobile -->
+                    <button class="btn btn-outline-secondary btn-sm me-3 d-lg-none" id="menu-toggle" aria-label="Toggle Sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <span class="navbar-brand mb-0 h4 text-secondary">@ViewData["Title"]</span>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-secondary fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    @displayName
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="/Account/Profile">
+                                        <i class="bi bi-person-gear me-2"></i> پروفایل
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                            <li>
+                                <!-- فرم لاگ‌اوت: استفاده از d-block برای پوشش کامل دراپ‌داون -->
+                                <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="d-block w-100">
+                                            @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item text-danger w-100 text-start border-0 bg-transparent">
+                                        <i class="bi bi-box-arrow-left me-2"></i> خروج
+                                    </button>
+                                </form>
+                            </li>
+                    </div>
+                    </li>
+                    </ul>
+                </div>
+        </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="container-fluid p-4">
+            <!-- پیام‌های موفقیت و خطا -->
+                @await Html.PartialAsync("_NotificationPartial")
+
+                @RenderBody()
+        </main>
+    </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+
+    <!-- Custom Admin JS -->
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- اسکریپت مدیریت سایدبار (با بررسی وجود المنت برای جلوگیری از خطا) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuToggle = document.getElementById("menu-toggle");
+            const wrapper = document.getElementById("wrapper");
+
+            if (menuToggle && wrapper) {
+                menuToggle.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    wrapper.classList.toggle("toggled");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

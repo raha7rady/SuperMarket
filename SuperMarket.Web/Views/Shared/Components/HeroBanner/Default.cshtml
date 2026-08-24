@@ -1,0 +1,28 @@
+﻿@model SuperMarket.Web.ViewComponents.Models.HeroBannerViewModel
+
+<section class="hero-banner" role="banner" aria-label="Hero Banner">
+
+    <div class="container">
+
+        <div class="hero-content">
+
+            <h1 class="hero-title">
+                @Model.Title
+            </h1>
+
+            <p class="hero-subtitle">
+                @Model.Subtitle
+            </p>
+
+            <a href="@Model.ButtonUrl"
+               class="btn btn-light hero-btn">
+
+                @Model.ButtonText
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>

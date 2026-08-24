@@ -1,0 +1,70 @@
+@model SuperMarket.Application.Common.PagedResult<SuperMarket.Application.DTOs.Orders.OrderCustomerDto>
+
+@{
+    ViewData["Title"] = "سفارش‌های من";
+}
+
+<div class="container py-4">
+
+    <h2 class="fw-bold mb-4">سفارش‌های من</h2>
+
+    @if (!Model.IsSuccess || Model.Value.Count == 0)
+    {
+        <div class="text-center p-5 bg-light rounded">
+            <h5 class="mb-3">هنوز سفارشی ثبت نکرده‌اید</h5>
+            <a asp-area="Customer" asp-controller="Product" asp-action="Index" class="btn btn-primary">
+                مشاهده محصولات
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>کد سفارش</th>
+                        <th>تاریخ</th>
+                        <th>مبلغ کل</th>
+                        <th>وضعیت سفارش</th>
+                        <th>وضعیت پرداخت</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Value)
+                    {
+                        <tr>
+                            <td>@order.Id.ToString().Substring(0, 8)</td>
+                            <td>@order.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@order.TotalPrice.ToString("N0") تومان</td>
+                            <td><span class="badge bg-secondary">@order.OrderStatus</span></td>
+                            <td><span class="badge bg-secondary">@order.PaymentStatus</span></td>
+                            <td>
+                                <a asp-area="Customer" asp-controller="Order" asp-action="Details" asp-route-id="@order.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    جزئیات
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination">
+                    @for (var p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-area="Customer" asp-controller="Order" asp-action="Index" asp-route-pageNumber="@p">@p</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+
+</div>

@@ -1,0 +1,28 @@
+﻿@model List<SuperMarket.Web.Areas.Admin.ViewModels.Dashboard.DashboardLowStockViewModel>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Low Stock Products
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Stock Quantity</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr class="@(product.IsCritical ? "table-danger" : "")">
+                        <td>@product.ProductTitle</td>
+                        <td>@product.StockQuantity</td>
+                        <td>@(product.IsCritical ? "Critical" : "OK")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
