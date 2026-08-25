@@ -28,6 +28,22 @@ namespace SuperMarket.Domain.Entities
         public Toman TotalPrice =>
             ActiveItems.Aggregate(Toman.Create(0), (t, i) => t.Add(i.SubTotal));
 
+        public ShippingAddress? ShippingAddress { get; private set; }
+        public DeliveryOption? DeliveryOption { get; private set; }
+        public OrderPaymentMethod? PaymentMethod { get; private set; }
+        public Toman ShippingCost { get; private set; } = Toman.Create(0);
+        public string? CouponCode { get; private set; }
+        public Toman CouponDiscount { get; private set; } = Toman.Create(0);
+
+        public Toman FinalPayable
+        {
+            get
+            {
+                var amount = TotalPrice.Amount + ShippingCost.Amount - CouponDiscount.Amount;
+                return Toman.Create(amount < 0 ? 0 : amount);
+            }
+        }
+
         private Order() { }
 
         public Order(Guid userId)
@@ -38,6 +54,27 @@ namespace SuperMarket.Domain.Entities
             UserId = userId;
             OrderStatus = OrderStatus.Pending;
             PaymentStatus = PaymentStatus.Pending;
+        }
+
+        public void SetCheckoutDetails(
+            ShippingAddress shippingAddress,
+            DeliveryOption deliveryOption,
+            OrderPaymentMethod paymentMethod,
+            decimal shippingCost,
+            string? couponCode,
+            decimal couponDiscount,
+            Guid performedBy)
+        {
+            EnsureModifiable();
+
+            ShippingAddress = shippingAddress ?? throw new ArgumentNullException(nameof(shippingAddress));
+            DeliveryOption = deliveryOption;
+            PaymentMethod = paymentMethod;
+            ShippingCost = Toman.Create(shippingCost < 0 ? 0 : shippingCost);
+            CouponCode = string.IsNullOrWhiteSpace(couponCode) ? null : couponCode.Trim();
+            CouponDiscount = Toman.Create(couponDiscount < 0 ? 0 : couponDiscount);
+
+            SetModified(performedBy);
         }
 
         public void AddItem(Guid productId, string title, decimal price, int quantity, Guid performedBy)

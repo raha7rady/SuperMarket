@@ -64,8 +64,8 @@ else
                 {
                     <tr>
                         <td style="width:70px">
-                            <img src="@item.Id"
-                                 alt="img"
+                            <img src="@(string.IsNullOrWhiteSpace(item.ImageUrl) ? "/images/no-image.png" : item.ImageUrl)"
+                                 alt="@item.Title"
                                  class="img-thumbnail"
                                  style="height:50px;width:50px;object-fit:cover;" />
                         </td>

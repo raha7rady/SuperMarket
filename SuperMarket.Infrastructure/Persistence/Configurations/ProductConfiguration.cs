@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SuperMarket.Domain.Entities;
 
@@ -13,15 +13,7 @@ public sealed class ProductConfiguration
     {
         builder.ToTable(TableName);
 
-        // =========================
-        // Primary Key
-        // =========================
-
         builder.HasKey(p => p.Id);
-
-        // =========================
-        // Primitive Properties
-        // =========================
 
         builder.Property(p => p.ImageUrl)
             .HasMaxLength(500)
@@ -41,9 +33,33 @@ public sealed class ProductConfiguration
         builder.Property(p => p.CategoryId)
             .IsRequired();
 
-        // =========================
-        // Auditable Properties
-        // =========================
+        builder.Property(p => p.Brand)
+            .HasMaxLength(100);
+
+        builder.Property(p => p.Barcode)
+            .HasMaxLength(50);
+
+        builder.Property(p => p.Unit)
+            .HasMaxLength(20);
+
+        builder.Property(p => p.Tags)
+            .HasMaxLength(500);
+
+        builder.Property(p => p.DietaryTags)
+            .HasMaxLength(500);
+
+        builder.Property(p => p.GalleryImages)
+            .HasMaxLength(2000);
+
+        builder.Property(p => p.IsSpecialDeal)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.IsBestSeller)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.DealEndTime);
 
         builder.Property(p => p.CreatedDate)
             .IsRequired();
@@ -61,10 +77,6 @@ public sealed class ProductConfiguration
         builder.Property(p => p.DeletedDate);
 
         builder.Property(p => p.DeletedBy);
-
-        // =========================
-        // Owned Types
-        // =========================
 
         builder.OwnsOne(p => p.Title, title =>
         {
@@ -86,6 +98,13 @@ public sealed class ProductConfiguration
                 .IsRequired();
         });
 
+        builder.OwnsOne(p => p.CompareAtPrice, price =>
+        {
+            price.Property(p => p.Amount)
+                .HasColumnName("CompareAtPrice")
+                .HasColumnType("decimal(18,2)");
+        });
+
         builder.OwnsOne(p => p.Stock, stock =>
         {
             stock.Property(s => s.Value)
@@ -103,18 +122,10 @@ public sealed class ProductConfiguration
                 .HasDatabaseName("IX_Products_DisplayOrder");
         });
 
-        // =========================
-        // Relationships
-        // =========================
-
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // =========================
-        // Indexes
-        // =========================
 
         builder.HasIndex(p => p.Slug)
             .IsUnique()

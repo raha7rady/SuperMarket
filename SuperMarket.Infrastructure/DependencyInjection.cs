@@ -62,6 +62,8 @@ public static class DependencyInjection
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
+        services.AddScoped<IWishlistRepository, WishlistRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
@@ -84,6 +86,10 @@ public static class DependencyInjection
 
         services.AddScoped<IIdentitySyncService, IdentitySyncService>();
 
+        // -----------------------
+        // 6️⃣ JWT Token Service (used by SuperMarket.API)
+        // -----------------------
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         return services;
     }

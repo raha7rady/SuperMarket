@@ -8,16 +8,6 @@
 <h2 class="mb-4">Order Details</h2>
 <a asp-action="Index" class="btn btn-secondary mb-3">Back</a>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
 <div class="card mb-4">
     <div class="card-body">
         <p><strong>Order Id:</strong> @Model.Id</p>

@@ -1,0 +1,27 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Orders
+@model SuperMarket.Web.Areas.Admin.ViewModels.Orders.OrderStatusViewModel
+
+@switch (Model)
+{
+    case OrderStatusViewModel.Pending:
+        <span class="badge bg-warning text-dark">Pending</span>
+        break;
+    case OrderStatusViewModel.Paid:
+        <span class="badge bg-info text-dark">Paid</span>
+        break;
+    case OrderStatusViewModel.Shipped:
+        <span class="badge bg-primary">Shipped</span>
+        break;
+    case OrderStatusViewModel.Delivered:
+        <span class="badge bg-success">Delivered</span>
+        break;
+    case OrderStatusViewModel.Cancelled:
+        <span class="badge bg-danger">Cancelled</span>
+        break;
+    case OrderStatusViewModel.Refunded:
+        <span class="badge bg-info text-dark">Refunded</span>
+        break;
+    default:
+        <span class="badge bg-secondary">Unknown</span>
+        break;
+}

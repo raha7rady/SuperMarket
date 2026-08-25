@@ -105,12 +105,12 @@ public sealed class ProductController : Controller
     public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken)
     {
         if (id == Guid.Empty)
-            return RedirectToAction("NotFound", "Error", new { area = "" });
+            return RedirectToAction("NotFoundPage", "Error", new { area = "" });
 
         var result = await _productService.GetByIdForCustomerAsync(id, cancellationToken);
 
         if (result.IsFailure || result.Value is null)
-            return RedirectToAction("NotFound", "Error", new { area = "" });
+            return RedirectToAction("NotFoundPage", "Error", new { area = "" });
 
         var viewModel = _mapper.Map<CustomerProductDetailsViewModel>(result.Value);
 

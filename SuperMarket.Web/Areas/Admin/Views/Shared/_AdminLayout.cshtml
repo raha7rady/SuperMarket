@@ -30,7 +30,7 @@
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
 
     <!-- Bootstrap 5 RTL CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-..." crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -70,38 +70,32 @@
                                     @displayName
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="/Account/Profile">
-                                        <i class="bi bi-person-gear me-2"></i> پروفایل
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                            <li>
-                                <!-- فرم لاگ‌اوت: استفاده از d-block برای پوشش کامل دراپ‌داون -->
-                                <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="d-block w-100">
-                                            @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item text-danger w-100 text-start border-0 bg-transparent">
-                                        <i class="bi bi-box-arrow-left me-2"></i> خروج
-                                    </button>
-                                </form>
+                                    <!-- فرم لاگ‌اوت: asp-area خالی چون AccountController در ناحیه Admin نیست -->
+                                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-block w-100">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger w-100 text-start border-0 bg-transparent">
+                                            <i class="bi bi-box-arrow-left me-2"></i> خروج
+                                        </button>
+                                    </form>
+                                </div>
                             </li>
+                        </ul>
                     </div>
-                    </li>
-                    </ul>
                 </div>
-        </div>
-        </nav>
+            </nav>
 
-        <!-- Main Content Area -->
-        <main class="container-fluid p-4">
-            <!-- پیام‌های موفقیت و خطا -->
+            <!-- Main Content Area -->
+            <main class="container-fluid p-4">
+                <!-- پیام‌های موفقیت و خطا -->
                 @await Html.PartialAsync("_NotificationPartial")
 
                 @RenderBody()
-        </main>
-    </div>
+            </main>
+        </div>
     </div>
 
     <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom Admin JS -->
     <script src="~/js/admin.js" asp-append-version="true"></script>

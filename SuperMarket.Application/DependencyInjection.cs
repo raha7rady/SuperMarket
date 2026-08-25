@@ -25,6 +25,8 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<ICheckoutService, CheckoutService>();
+        services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IWishlistService, WishlistService>();
 
         services.AddScoped<IValidator<ProductCreateDto>, ProductValidator>();
         services.AddScoped<IValidator<ProductUpdateDto>, ProductUpdateValidator>();

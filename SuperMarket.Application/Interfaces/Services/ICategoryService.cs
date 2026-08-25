@@ -14,6 +14,11 @@ public interface ICategoryService
         CategoryUpdateDto dto,
         CancellationToken cancellationToken = default);
 
+    Task<Result> UpdateCatalogDetailsAsync(
+        Guid id,
+        CategoryCatalogDetailsDto dto,
+        CancellationToken cancellationToken = default);
+
     Task<Result> DeleteAsync(
         Guid id,
         CancellationToken cancellationToken = default);

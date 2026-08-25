@@ -172,5 +172,26 @@ namespace SuperMarket.Infrastructure.Repositories
             return await query
                 .AnyAsync(cancellationToken);
         }
+
+        public async Task<bool> ExistsBySlugAsync(
+            string slug,
+            Guid? excludeId = null,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<Category> query = _dbSet
+                .AsNoTracking()
+                .Where(c =>
+                    c.Slug == slug &&
+                    !c.IsDeleted);
+
+            if (excludeId.HasValue)
+            {
+                query = query.Where(
+                    c => c.Id != excludeId.Value);
+            }
+
+            return await query
+                .AnyAsync(cancellationToken);
+        }
     }
 }

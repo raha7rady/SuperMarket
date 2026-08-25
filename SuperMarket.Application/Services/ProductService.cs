@@ -160,6 +160,44 @@ public sealed class ProductService : IProductService
         return Result.Success();
     }
 
+    public async Task<Result> UpdateCatalogDetailsAsync(
+        Guid id,
+        ProductCatalogDetailsDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var product = await GetProductOrNullAsync(
+            id,
+            cancellationToken);
+
+        if (product is null)
+            return Result.Failure("Product not found.");
+
+        try
+        {
+            product.UpdateCatalogDetails(
+                dto.CompareAtPrice,
+                dto.Brand,
+                dto.Barcode,
+                dto.Unit,
+                dto.Tags,
+                dto.DietaryTags,
+                dto.GalleryImages,
+                dto.IsSpecialDeal,
+                dto.IsBestSeller,
+                dto.DealEndTime,
+                CurrentUserId);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
+
+        await _repository.UpdateAsync(product, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
+
     public async Task<Result> DeleteAsync(
         Guid id,
         CancellationToken cancellationToken = default)

@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SuperMarket.Application.Interfaces.Services;
+using SuperMarket.Application.Products.Queries;
 using SuperMarket.Web.Areas.Customer.ViewModels.Categories;
 using SuperMarket.Web.Areas.Customer.ViewModels.Products;
 using SuperMarket.Web.ViewModels;
@@ -11,87 +14,65 @@ namespace SuperMarket.Web.Controllers;
 [AllowAnonymous]
 public sealed class HomeController : Controller
 {
+    private const int FeaturedProductsCount = 8;
+
+    private readonly IProductService _productService;
+    private readonly ICategoryService _categoryService;
+    private readonly IMapper _mapper;
     private readonly ILogger<HomeController> _logger;
 
     public HomeController(
+        IProductService productService,
+        ICategoryService categoryService,
+        IMapper mapper,
         ILogger<HomeController> logger)
     {
+        _productService = productService;
+        _categoryService = categoryService;
+        _mapper = mapper;
         _logger = logger;
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
+        var categoryResult = await _categoryService.GetLookupAsync(cancellationToken);
+
+        if (categoryResult.IsFailure)
+        {
+            _logger.LogWarning(
+                "Home category load failed: {Errors}",
+                string.Join(" | ", categoryResult.Errors));
+        }
+
+        var categories = categoryResult.IsSuccess && categoryResult.Value is not null
+            ? _mapper.Map<IReadOnlyList<CustomerCategoryItemViewModel>>(categoryResult.Value)
+            : Array.Empty<CustomerCategoryItemViewModel>();
+
+        var featuredQuery = new ProductCustomerQuery
+        {
+            PageNumber = 1,
+            PageSize = FeaturedProductsCount
+        };
+
+        var productResult =
+            await _productService.GetPagedForCustomerAsync(featuredQuery, cancellationToken);
+
+        if (productResult.IsFailure)
+        {
+            _logger.LogWarning(
+                "Home featured product load failed: {Errors}",
+                string.Join(" | ", productResult.Errors));
+        }
+
+        var featuredProducts = productResult.IsSuccess && productResult.Value is not null
+            ? _mapper.Map<IReadOnlyList<CustomerProductCardViewModel>>(productResult.Value)
+            : Array.Empty<CustomerProductCardViewModel>();
+
         var model = new HomeIndexViewModel
         {
-            Categories =
-            [
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "نوشیدنی ها"
-                },
-
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "لبنیات"
-                },
-
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "تنقلات"
-                },
-
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "مواد پروتئینی"
-                }
-            ],
-
-            FeaturedProducts =
-            [
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "شیر کم چرب",
-                    Slug = "milk",
-                    CategoryName = "لبنیات",
-                    Price = 120000,
-                    FinalPrice = 99000,
-                    HasDiscount = true,
-                    Stock = 15,
-                    ImageUrl = "/images/products/default-product.jpg"
-                },
-
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "چیپس ساده",
-                    Slug = "chips",
-                    CategoryName = "تنقلات",
-                    Price = 45000,
-                    FinalPrice = 45000,
-                    HasDiscount = false,
-                    Stock = 8,
-                    ImageUrl = "/images/products/default-product.jpg"
-                },
-
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "آب معدنی",
-                    Slug = "water",
-                    CategoryName = "نوشیدنی",
-                    Price = 15000,
-                    FinalPrice = 12000,
-                    HasDiscount = true,
-                    Stock = 50,
-                    ImageUrl = "/images/products/default-product.jpg"
-                }
-            ]
+            Categories = categories,
+            FeaturedProducts = featuredProducts
         };
 
         return View(model);

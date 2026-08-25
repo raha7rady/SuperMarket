@@ -44,5 +44,10 @@ namespace SuperMarket.Domain.Interfaces.Repositories
             string title,
             Guid? excludeId = null,
             CancellationToken cancellationToken = default);
+
+        Task<bool> ExistsBySlugAsync(
+            string slug,
+            Guid? excludeId = null,
+            CancellationToken cancellationToken = default);
     }
 }

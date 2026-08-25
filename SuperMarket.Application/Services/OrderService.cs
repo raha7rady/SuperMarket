@@ -6,6 +6,7 @@ using SuperMarket.Application.DTOs.Orders;
 using SuperMarket.Application.Interfaces.Services;
 using SuperMarket.Domain.Entities;
 using SuperMarket.Domain.Interfaces.Repositories;
+using SuperMarket.Domain.ValueObjects;
 
 namespace SuperMarket.Application.Services
 {
@@ -66,6 +67,38 @@ namespace SuperMarket.Application.Services
                     product.Price.Amount,
                     item.Quantity,
                     dto.UserId);
+            }
+
+            if (dto.CheckoutDetails is not null)
+            {
+                var details = dto.CheckoutDetails;
+
+                try
+                {
+                    var shippingAddress = ShippingAddress.Create(
+                        details.RecipientFullName,
+                        details.RecipientPhone,
+                        details.Province,
+                        details.City,
+                        details.AddressLine,
+                        details.PostalCode,
+                        details.Plaque,
+                        details.Unit,
+                        details.DeliveryNote);
+
+                    order.SetCheckoutDetails(
+                        shippingAddress,
+                        details.DeliveryOption,
+                        details.PaymentMethod,
+                        details.ShippingCost,
+                        details.CouponCode,
+                        details.CouponDiscount,
+                        dto.UserId);
+                }
+                catch (ArgumentException ex)
+                {
+                    return Result<Guid>.Failure(ex.Message);
+                }
             }
 
             await _orderRepository.AddAsync(order, cancellationToken);

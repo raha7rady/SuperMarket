@@ -1,148 +1,164 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SuperMarket.Application.Common;
 using SuperMarket.Application.DTOs.Categories;
 using SuperMarket.Application.Interfaces.Services;
+using SuperMarket.Web.Areas.Admin.ViewModels.Categories;
 
 namespace SuperMarket.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[ApiController]
-[Route("api/admin/categories")]
 [Authorize(Roles = "Admin,SuperAdmin")]
-public sealed class CategoriesController : ControllerBase
+public sealed class CategoriesController : Controller
 {
-    private const int MaxPageSize = 100;
-    private readonly ICategoryService _categoryService;
+    private const int DefaultPageSize = 10;
 
-    public CategoriesController(ICategoryService categoryService)
+    private readonly ICategoryService _categoryService;
+    private readonly IMapper _mapper;
+
+    public CategoriesController(ICategoryService categoryService, IMapper mapper)
     {
         _categoryService = categoryService
             ?? throw new ArgumentNullException(nameof(categoryService));
+        _mapper = mapper
+            ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    // ============================================================
+    // LIST
+    // ============================================================
+
+    [HttpGet]
+    public async Task<IActionResult> Index(
+        int pageNumber = 1,
+        int pageSize = DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageNumber <= 0)
+            pageNumber = 1;
+
+        if (pageSize <= 0)
+            pageSize = DefaultPageSize;
+
+        var result = await _categoryService.GetPagedForAdminAsync(
+            pageNumber,
+            pageSize,
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            TempData["Error"] = result.FirstError;
+
+            return View(new CategoryListViewModel
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
+        }
+
+        var viewModel = new CategoryListViewModel
+        {
+            Items = _mapper.Map<IReadOnlyList<CategoryListItemViewModel>>(result.Value),
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = result.TotalCount
+        };
+
+        return View(viewModel);
+    }
+
+    // ============================================================
+    // CREATE
+    // ============================================================
+
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View(new CategoryCreateViewModel());
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [FromBody] CategoryCreateDto dto,
+        CategoryCreateViewModel model,
         CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var dto = _mapper.Map<CategoryCreateDto>(model);
         var result = await _categoryService.CreateAsync(dto, cancellationToken);
 
         if (result.IsFailure)
-            return HandleFailure(result);
+        {
+            ModelState.AddModelError(string.Empty, result.FirstError ?? "امکان ایجاد دسته‌بندی وجود ندارد.");
+            return View(model);
+        }
 
-        return CreatedAtRoute(
-            "GetCategoryByIdForAdmin",
-            new { id = result.Value },
-            result.Value);
+        TempData["Success"] = "دسته‌بندی با موفقیت ایجاد شد.";
+        return RedirectToAction(nameof(Index));
     }
 
-    [HttpPut("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(
-        Guid id,
-        [FromBody] CategoryUpdateDto dto,
-        CancellationToken cancellationToken)
+    // ============================================================
+    // EDIT
+    // ============================================================
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken)
     {
-        if (id != dto.Id)
-            return BadRequest(new { errors = new[] { "Route id and body id do not match." } });
+        if (id == Guid.Empty)
+            return NotFound();
 
-        var result = await _categoryService.UpdateAsync(dto, cancellationToken);
-
-        if (result.IsFailure)
-            return HandleFailure(result);
-
-        return NoContent();
-    }
-
-    [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        var result = await _categoryService.DeleteAsync(id, cancellationToken);
-
-        if (result.IsFailure)
-            return HandleFailure(result);
-
-        return NoContent();
-    }
-
-    [HttpGet("{id:guid}", Name = "GetCategoryByIdForAdmin")]
-    [ProducesResponseType(typeof(CategoryAdminDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIdForAdmin(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
         var result = await _categoryService.GetByIdForAdminAsync(id, cancellationToken);
 
         if (result.IsFailure)
-            return HandleFailure(result);
+        {
+            TempData["Error"] = result.FirstError;
+            return RedirectToAction(nameof(Index));
+        }
 
-        return Ok(result.Value);
+        var viewModel = _mapper.Map<CategoryEditViewModel>(result.Value);
+        return View(viewModel);
     }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(PagedResult<CategoryAdminDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPagedForAdmin(
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 10,
-        CancellationToken cancellationToken = default)
-    {
-        if (pageNumber <= 0 || pageSize <= 0)
-            return BadRequest(new { errors = new[] { "PageNumber and PageSize must be greater than zero." } });
-
-        if (pageSize > MaxPageSize)
-            pageSize = MaxPageSize;
-
-        var result = await _categoryService
-            .GetPagedForAdminAsync(pageNumber, pageSize, cancellationToken);
-
-        if (result.IsFailure)
-            return HandleFailure(result);
-
-        return Ok(result);
-    }
-
-    [HttpPatch("{id:guid}/active")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SetActive(
-        Guid id,
-        [FromQuery] bool isActive,
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        CategoryEditViewModel model,
         CancellationToken cancellationToken)
     {
-        var result = await _categoryService
-            .SetActiveAsync(id, isActive, cancellationToken);
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var dto = _mapper.Map<CategoryUpdateDto>(model);
+        var result = await _categoryService.UpdateAsync(dto, cancellationToken);
 
         if (result.IsFailure)
-            return HandleFailure(result);
+        {
+            ModelState.AddModelError(string.Empty, result.FirstError ?? "امکان ویرایش دسته‌بندی وجود ندارد.");
+            return View(model);
+        }
 
-        return NoContent();
+        TempData["Success"] = "دسته‌بندی با موفقیت ویرایش شد.";
+        return RedirectToAction(nameof(Index));
     }
 
-    private IActionResult HandleFailure(Result result)
-    {
-        var response = new
-        {
-            errors = result.Errors,
-            errorCode = result.ErrorCode
-        };
+    // ============================================================
+    // DELETE
+    // ============================================================
 
-        return result.ErrorCode?.ToLowerInvariant() switch
-        {
-            "notfound" => NotFound(response),
-            "conflict" => Conflict(response),
-            _ => BadRequest(response)
-        };
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        if (id == Guid.Empty)
+            return RedirectToAction(nameof(Index));
+
+        var result = await _categoryService.DeleteAsync(id, cancellationToken);
+
+        TempData[result.IsFailure ? "Error" : "Success"] =
+            result.IsFailure ? result.FirstError : "دسته‌بندی با موفقیت حذف شد.";
+
+        return RedirectToAction(nameof(Index));
     }
 }

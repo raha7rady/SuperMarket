@@ -31,9 +31,28 @@ public sealed class CheckoutService : ICheckoutService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<Guid>> CheckoutAsync(
+    public Task<Result<Guid>> CheckoutAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
+    {
+        return CheckoutInternalAsync(userId, details: null, cancellationToken);
+    }
+
+    public Task<Result<Guid>> CheckoutAsync(
+        Guid userId,
+        CheckoutDetailsDto details,
+        CancellationToken cancellationToken = default)
+    {
+        if (details is null)
+            return Task.FromResult(Result<Guid>.Failure("Checkout details are required."));
+
+        return CheckoutInternalAsync(userId, details, cancellationToken);
+    }
+
+    private async Task<Result<Guid>> CheckoutInternalAsync(
+        Guid userId,
+        CheckoutDetailsDto? details,
+        CancellationToken cancellationToken)
     {
         if (userId == Guid.Empty)
             return Result<Guid>.Failure("UserId is required.");
@@ -44,7 +63,6 @@ public sealed class CheckoutService : ICheckoutService
         {
             await _unitOfWork.ExecuteTransactionAsync(async () =>
             {
-                // Blocks concurrent checkouts for the same user's cart.
                 await _cartRepository.LockForCheckoutAsync(userId, cancellationToken);
 
                 var cart = await _cartRepository.GetActiveCartWithItemsByUserIdAsync(userId, cancellationToken);
@@ -76,12 +94,16 @@ public sealed class CheckoutService : ICheckoutService
                     totalAmount += product.Price.Amount * item.Quantity.Value;
                 }
 
+                if (details is not null)
+                    totalAmount += details.ShippingCost - details.CouponDiscount;
+
                 var orderDto = new CreateOrderDto
                 {
                     UserId = userId,
                     Items = items
                         .Select(i => new OrderItemDto { ProductId = i.ProductId, Quantity = i.Quantity.Value })
-                        .ToList()
+                        .ToList(),
+                    CheckoutDetails = details
                 };
 
                 var orderResult = await _orderService.CreateAsync(orderDto, cancellationToken);
@@ -89,13 +111,12 @@ public sealed class CheckoutService : ICheckoutService
                 if (orderResult.IsFailure)
                     throw new InvalidOperationException(orderResult.FirstError);
 
-                // Prepares the order for a future real payment gateway; no charge happens here.
                 var paymentResult = await _paymentService.CreateAsync(
                     new PaymentCreateDto
                     {
                         OrderId = orderResult.Value,
                         Amount = totalAmount,
-                        PaymentMethod = "Unspecified",
+                        PaymentMethod = details?.PaymentMethod.ToString() ?? "Unspecified",
                         TransactionId = string.Empty,
                         Description = "Created at checkout"
                     },

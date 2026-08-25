@@ -61,6 +61,25 @@ public sealed class CategoryService : ICategoryService
             dto.Title.Trim(),
             dto.DisplayOrder);
 
+        if (dto.ImageUrl is not null || dto.Description is not null || dto.Badge is not null)
+        {
+            category.UpdateCatalogDetails(
+                dto.ImageUrl,
+                dto.Description,
+                dto.Badge);
+        }
+
+        var slugTaken = await _categoryRepository
+            .ExistsBySlugAsync(
+                category.Slug,
+                cancellationToken: cancellationToken);
+
+        if (slugTaken)
+        {
+            return Result<Guid>.Failure(
+                "A category with a very similar title already exists.");
+        }
+
         await _categoryRepository.AddAsync(
             category,
             cancellationToken);
@@ -121,8 +140,64 @@ public sealed class CategoryService : ICategoryService
             dto.DisplayOrder,
             _currentUser.UserId);
 
+        var slugTaken = await _categoryRepository
+            .ExistsBySlugAsync(
+                category.Slug,
+                dto.Id,
+                cancellationToken);
+
+        if (slugTaken)
+        {
+            return Result.Failure(
+                "A category with a very similar title already exists.");
+        }
+
         category.SetActive(
             dto.IsActive,
+            _currentUser.UserId);
+
+        await _categoryRepository.UpdateAsync(
+            category,
+            cancellationToken);
+
+        await _categoryRepository.SaveChangesAsync(
+            cancellationToken);
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateCatalogDetailsAsync(
+        Guid id,
+        CategoryCatalogDetailsDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        if (id == Guid.Empty)
+        {
+            return Result.Failure(
+                "Category id is required.");
+        }
+
+        if (dto is null)
+        {
+            return Result.Failure(
+                "Request cannot be null.");
+        }
+
+        var category = await _categoryRepository
+            .GetByIdAsync(
+                id,
+                cancellationToken);
+
+        if (category is null)
+        {
+            return Result.Failure(
+                "Category not found.");
+        }
+
+        category.UpdateCatalogDetails(
+            dto.ImageUrl,
+            dto.Description,
+            dto.Badge,
             _currentUser.UserId);
 
         await _categoryRepository.UpdateAsync(
@@ -308,11 +383,23 @@ public sealed class CategoryService : ICategoryService
                 ascending: true,
                 skip: (pageNumber - 1) * pageSize,
                 take: pageSize,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken,
+                includes: new Expression<Func<Category, object>>[]
+                {
+                    c => c.Products
+                });
 
-        var dtos = _mapper.Map<
-            List<CategoryCustomerDto>>(
-            categories);
+        var dtos = categories
+            .Select(category =>
+            {
+                var dto = _mapper.Map<CategoryCustomerDto>(category);
+
+                dto.ItemCount = category.Products
+                    .Count(p => p.IsActive && !p.IsDeleted);
+
+                return dto;
+            })
+            .ToList();
 
         return PagedResult<CategoryCustomerDto>.Success(
             dtos,

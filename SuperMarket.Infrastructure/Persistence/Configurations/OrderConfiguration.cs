@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SuperMarket.Domain.Entities;
 
@@ -28,9 +28,71 @@ namespace SuperMarket.Infrastructure.Persistence.Configurations
                    .HasMaxLength(EnumMaxLength)
                    .IsRequired();
 
-            // ========================
-            // Audit Fields
-            // ========================
+            builder.Property(o => o.DeliveryOption)
+                   .HasConversion<string>()
+                   .HasMaxLength(EnumMaxLength);
+
+            builder.Property(o => o.PaymentMethod)
+                   .HasConversion<string>()
+                   .HasMaxLength(EnumMaxLength);
+
+            builder.Property(o => o.CouponCode)
+                   .HasMaxLength(50);
+
+            builder.OwnsOne(o => o.ShippingCost, cost =>
+            {
+                cost.Property(c => c.Amount)
+                    .HasColumnName("ShippingCost")
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+            });
+
+            builder.OwnsOne(o => o.CouponDiscount, discount =>
+            {
+                discount.Property(d => d.Amount)
+                    .HasColumnName("CouponDiscount")
+                    .HasColumnType("decimal(18,2)")
+                    .IsRequired();
+            });
+
+            builder.OwnsOne(o => o.ShippingAddress, address =>
+            {
+                address.Property(a => a.FullName)
+                    .HasColumnName("Recipient_FullName")
+                    .HasMaxLength(150);
+
+                address.Property(a => a.Phone)
+                    .HasColumnName("Recipient_Phone")
+                    .HasMaxLength(20);
+
+                address.Property(a => a.Province)
+                    .HasColumnName("Recipient_Province")
+                    .HasMaxLength(100);
+
+                address.Property(a => a.City)
+                    .HasColumnName("Recipient_City")
+                    .HasMaxLength(100);
+
+                address.Property(a => a.AddressLine)
+                    .HasColumnName("Recipient_AddressLine")
+                    .HasMaxLength(500);
+
+                address.Property(a => a.PostalCode)
+                    .HasColumnName("Recipient_PostalCode")
+                    .HasMaxLength(20);
+
+                address.Property(a => a.Plaque)
+                    .HasColumnName("Recipient_Plaque")
+                    .HasMaxLength(20);
+
+                address.Property(a => a.Unit)
+                    .HasColumnName("Recipient_Unit")
+                    .HasMaxLength(20);
+
+                address.Property(a => a.DeliveryNote)
+                    .HasColumnName("Recipient_DeliveryNote")
+                    .HasMaxLength(500);
+            });
 
             builder.Property(o => o.CreatedDate).IsRequired();
             builder.Property(o => o.CreatedBy).IsRequired();
@@ -42,10 +104,6 @@ namespace SuperMarket.Infrastructure.Persistence.Configurations
 
             builder.Property<byte[]>("RowVersion")
                    .IsRowVersion();
-
-            // ========================
-            // Relationships
-            // ========================
 
             builder.HasOne(o => o.User)
                    .WithMany()
@@ -59,10 +117,6 @@ namespace SuperMarket.Infrastructure.Persistence.Configurations
 
             builder.Navigation(o => o.Items)
                    .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-            // ========================
-            // Indexes
-            // ========================
 
             builder.HasIndex(o => o.UserId);
             builder.HasIndex(o => new { o.UserId, o.IsDeleted });

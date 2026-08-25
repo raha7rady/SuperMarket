@@ -1,0 +1,49 @@
+﻿@using SuperMarket.Web.Areas.Admin.ViewModels.Orders
+
+@model SuperMarket.Web.Areas.Admin.ViewModels.Orders.OrderListViewModel
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-route-pageNumber="@(Model.Filter.PageNumber - 1)"
+                       asp-route-UserName="@Model.Filter.UserName"
+                       asp-route-OrderStatus="@Model.Filter.OrderStatus"
+                       asp-route-PaymentStatus="@Model.Filter.PaymentStatus">
+                        Previous
+                    </a>
+                </li>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Filter.PageNumber ? "active" : "")">
+                    <a class="page-link"
+                       asp-route-pageNumber="@i"
+                       asp-route-UserName="@Model.Filter.UserName"
+                       asp-route-OrderStatus="@Model.Filter.OrderStatus"
+                       asp-route-PaymentStatus="@Model.Filter.PaymentStatus">
+                        @i
+                    </a>
+                </li>
+            }
+
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-route-pageNumber="@(Model.Filter.PageNumber + 1)"
+                       asp-route-UserName="@Model.Filter.UserName"
+                       asp-route-OrderStatus="@Model.Filter.OrderStatus"
+                       asp-route-PaymentStatus="@Model.Filter.PaymentStatus">
+                        Next
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

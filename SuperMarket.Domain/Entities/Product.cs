@@ -30,6 +30,34 @@ public class Product : AuditableEntity
 
     public string? MetaDescription { get; private set; }
 
+    public Toman? CompareAtPrice { get; private set; }
+
+    public string? Brand { get; private set; }
+
+    public string? Barcode { get; private set; }
+
+    public string? Unit { get; private set; }
+
+    public string? Tags { get; private set; }
+
+    public string? DietaryTags { get; private set; }
+
+    public string? GalleryImages { get; private set; }
+
+    public bool IsSpecialDeal { get; private set; }
+
+    public bool IsBestSeller { get; private set; }
+
+    public DateTimeOffset? DealEndTime { get; private set; }
+
+    public bool HasValidDiscount =>
+        CompareAtPrice is not null && CompareAtPrice.Amount > Price.Amount;
+
+    public int? DiscountPercent =>
+        HasValidDiscount
+            ? (int)Math.Round((1 - Price.Amount / CompareAtPrice!.Amount) * 100)
+            : null;
+
     private Product()
     {
     }
@@ -84,6 +112,38 @@ public class Product : AuditableEntity
         SetSlug(slug);
 
         SetDisplayOrder(displayOrder);
+
+        if (modifiedBy.HasValue)
+        {
+            SetModified(modifiedBy.Value);
+        }
+    }
+
+    public void UpdateCatalogDetails(
+        decimal? compareAtPrice,
+        string? brand,
+        string? barcode,
+        string? unit,
+        IEnumerable<string>? tags,
+        IEnumerable<string>? dietaryTags,
+        IEnumerable<string>? galleryImages,
+        bool isSpecialDeal,
+        bool isBestSeller,
+        DateTimeOffset? dealEndTime,
+        Guid? modifiedBy = null)
+    {
+        EnsureNotDeleted();
+
+        SetCompareAtPrice(compareAtPrice);
+        Brand = NormalizeOptional(brand, MaxBrandLength);
+        Barcode = NormalizeOptional(barcode, MaxBarcodeLength);
+        Unit = NormalizeOptional(unit, MaxUnitLength);
+        Tags = JoinList(tags);
+        DietaryTags = JoinList(dietaryTags);
+        GalleryImages = JoinList(galleryImages);
+        IsSpecialDeal = isSpecialDeal;
+        IsBestSeller = isBestSeller;
+        DealEndTime = dealEndTime;
 
         if (modifiedBy.HasValue)
         {
@@ -275,6 +335,57 @@ public class Product : AuditableEntity
     private void SetDisplayOrder(int displayOrder)
     {
         SortOrder = DisplayOrder.Create(displayOrder);
+    }
+
+    private const int MaxBrandLength = 100;
+    private const int MaxBarcodeLength = 50;
+    private const int MaxUnitLength = 20;
+    private const int MaxTagLength = 40;
+    private const int MaxTagsCount = 20;
+    private const string ListDelimiter = ";";
+
+    private void SetCompareAtPrice(decimal? compareAtPrice)
+    {
+        CompareAtPrice = compareAtPrice.HasValue && compareAtPrice.Value > 0
+            ? Toman.Create(compareAtPrice.Value)
+            : null;
+    }
+
+    private static string? NormalizeOptional(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        value = value.Trim();
+
+        if (value.Length > maxLength)
+        {
+            throw new ArgumentException(
+                $"Value cannot exceed {maxLength} characters.",
+                nameof(value));
+        }
+
+        return value;
+    }
+
+    private static string? JoinList(IEnumerable<string>? values)
+    {
+        if (values is null)
+        {
+            return null;
+        }
+
+        var cleaned = values
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Select(v => v.Trim())
+            .Where(v => v.Length <= MaxTagLength)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(MaxTagsCount)
+            .ToList();
+
+        return cleaned.Count == 0 ? null : string.Join(ListDelimiter, cleaned);
     }
 
     private void EnsureNotDeleted()

@@ -1,19 +1,4 @@
-﻿@if (TempData["Success"] is string success)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        @success
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
-@if (TempData["Error"] is string error)
-{
-    <div class="alert alert-danger alert-dismissible fade show">
-        @error
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
+﻿@* پیام‌های موفقیت/خطا به‌صورت سراسری در _AdminLayout (_NotificationPartial) نمایش داده می‌شوند. *@
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">

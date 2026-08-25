@@ -2,6 +2,8 @@
 
 using AutoMapper;
 using SuperMarket.Domain.Entities;
+using SuperMarket.Domain.ValueObjects;
+using SuperMarket.Application.Common.Extensions;
 using SuperMarket.Application.DTOs.Users;
 using SuperMarket.Application.DTOs.Products;
 using SuperMarket.Application.DTOs.Categories;
@@ -84,6 +86,9 @@ namespace SuperMarket.Application.Mappings
                     d => d.Price,
                     o => o.MapFrom(s => s.Price.Amount))
                 .ForMember(
+                    d => d.CompareAtPrice,
+                    o => o.MapFrom(s => s.CompareAtPrice != null ? s.CompareAtPrice.Amount : (decimal?)null))
+                .ForMember(
                     d => d.Stock,
                     o => o.MapFrom(s => s.Stock.Value))
                 .ForMember(
@@ -98,6 +103,15 @@ namespace SuperMarket.Application.Mappings
                 .ForMember(
                     d => d.IsActive,
                     o => o.MapFrom(s => s.IsActive))
+                .ForMember(
+                    d => d.Tags,
+                    o => o.MapFrom(s => s.Tags.SplitList()))
+                .ForMember(
+                    d => d.DietaryTags,
+                    o => o.MapFrom(s => s.DietaryTags.SplitList()))
+                .ForMember(
+                    d => d.GalleryImages,
+                    o => o.MapFrom(s => s.GalleryImages.SplitList()))
                 .ForMember(
                     d => d.CreatedAt,
                     o => o.MapFrom(s => s.CreatedDate))
@@ -116,8 +130,14 @@ namespace SuperMarket.Application.Mappings
                     d => d.FinalPrice,
                     o => o.MapFrom(s => s.Price.Amount))
                 .ForMember(
-                    d => d.HasDiscount,
-                    o => o.MapFrom(_ => false))
+                    d => d.CompareAtPrice,
+                    o => o.MapFrom(s => s.CompareAtPrice != null ? s.CompareAtPrice.Amount : (decimal?)null))
+                .ForMember(
+                    d => d.HasValidDiscount,
+                    o => o.MapFrom(s => s.HasValidDiscount))
+                .ForMember(
+                    d => d.DiscountPercent,
+                    o => o.MapFrom(s => s.DiscountPercent))
                 .ForMember(
                     d => d.Stock,
                     o => o.MapFrom(s => s.Stock.Value))
@@ -135,7 +155,16 @@ namespace SuperMarket.Application.Mappings
                     o => o.MapFrom(s =>
                         s.Category != null
                             ? s.Category.Title
-                            : string.Empty));
+                            : string.Empty))
+                .ForMember(
+                    d => d.Tags,
+                    o => o.MapFrom(s => s.Tags.SplitList()))
+                .ForMember(
+                    d => d.DietaryTags,
+                    o => o.MapFrom(s => s.DietaryTags.SplitList()))
+                .ForMember(
+                    d => d.GalleryImages,
+                    o => o.MapFrom(s => s.GalleryImages.SplitList()));
 
             CreateMap<ProductCreateDto, Product>()
                 .ConstructUsing(s =>
@@ -279,16 +308,39 @@ namespace SuperMarket.Application.Mappings
                     d => d.Items,
                     o => o.MapFrom(s => s.Items));
 
+            CreateMap<ShippingAddress, OrderRecipientDto>();
+
             CreateMap<Order, OrderCustomerDto>()
+                .ForMember(
+                    d => d.OrderNumber,
+                    o => o.MapFrom(s => s.Id.ToFriendlyOrderNumber()))
                 .ForMember(
                     d => d.TotalPrice,
                     o => o.MapFrom(s => s.TotalPrice.Amount))
                 .ForMember(
                     d => d.OrderStatus,
-                    o => o.MapFrom(s => s.OrderStatus.ToString()))
+                    o => o.MapFrom(s => s.OrderStatus.ToFrontendString()))
                 .ForMember(
                     d => d.PaymentStatus,
-                    o => o.MapFrom(s => s.PaymentStatus.ToString()))
+                    o => o.MapFrom(s => s.PaymentStatus.ToFrontendString()))
+                .ForMember(
+                    d => d.Recipient,
+                    o => o.MapFrom(s => s.ShippingAddress))
+                .ForMember(
+                    d => d.DeliveryOption,
+                    o => o.MapFrom(s => s.DeliveryOption != null ? s.DeliveryOption.ToString() : null))
+                .ForMember(
+                    d => d.PaymentMethod,
+                    o => o.MapFrom(s => s.PaymentMethod != null ? s.PaymentMethod.ToString() : null))
+                .ForMember(
+                    d => d.ShippingCost,
+                    o => o.MapFrom(s => s.ShippingCost.Amount))
+                .ForMember(
+                    d => d.CouponDiscount,
+                    o => o.MapFrom(s => s.CouponDiscount.Amount))
+                .ForMember(
+                    d => d.FinalPayable,
+                    o => o.MapFrom(s => s.FinalPayable.Amount))
                 .ForMember(
                     d => d.Items,
                     o => o.MapFrom(s => s.Items));
